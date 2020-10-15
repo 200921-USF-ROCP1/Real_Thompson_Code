@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.DAOUtilities.DAOUtilities;
 import com.revature.Model.Account;
 //import com.revature.Model.ReadUserId;
 import com.revature.Model.User;
@@ -27,12 +28,13 @@ public class UserFindUserByID extends HttpServlet {
 
 	@Override
 	// log in first, then run this
+	// find user by id
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		
 		PrintWriter pw = response.getWriter();
-		User user = (User) request.getSession().getAttribute("UserLoggedIn");
+		User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (user != null) {
 			String userid = request.getParameter("id"); // use when using the param tab in postman
 			
@@ -52,8 +54,10 @@ public class UserFindUserByID extends HttpServlet {
 					pw.println("User not found");
 				}
 			}
-
+		}
+		else
+		{
+			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
 		}
 	}
-
 }

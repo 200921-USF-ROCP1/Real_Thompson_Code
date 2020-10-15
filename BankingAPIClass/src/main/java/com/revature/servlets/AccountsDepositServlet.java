@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.DAOUtilities.DAOUtilities;
 import com.revature.Model.AccountTran;
 import com.revature.Model.User;
 import com.revature.dao.AccountDAO;
@@ -30,11 +31,12 @@ public class AccountsDepositServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
+		PrintWriter pw = response.getWriter();
 		try {
-			User user = (User) request.getSession().getAttribute("UserLoggedIn");
+			User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 			if (user != null) {
 
-				PrintWriter pw = response.getWriter();
+				pw = response.getWriter();
 				AccountDAO dao = new AccountImpl();
 				UserDAO userdao = new UserImpl();
 				// get account belonging to the user
@@ -73,6 +75,10 @@ public class AccountsDepositServlet extends HttpServlet {
 						response.setStatus(400);
 					}
 				}
+			}
+			else
+			{
+				pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
 			}
 		} catch (Exception sve) {
 			throw new ServletException("accounts/deposit: " + sve.getMessage());

@@ -30,27 +30,16 @@ public class AccountsTransferServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		User user = (User) request.getSession().getAttribute("UserLoggedIn");
+		PrintWriter pw = response.getWriter();
+		User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (user != null) {
 
 			ObjectMapper mapper = new ObjectMapper(); // Create the mapper
 			TransferJSON unmarshalled = mapper.readValue(request.getReader(), TransferJSON.class); // Unmarshal
 			AccountDAO dao = new AccountImpl();
 			boolean loggedInUserHasSecurity =  DAOUtilities.CompareUsersByAccountNumber(unmarshalled.getSourceAccountId(), user.getUserId());
-//			List<Account> foundaccounts = dao.FindAccountsByUser(user.getUserId());
-//
-//			boolean foundsource = false;
-//			boolean foundtarget = false;
-//			for (Account account : foundaccounts) {
-//				if (account.getAccountId() == unmarshalled.getSourceAccountId()) {
-//					foundsource = true;
-//				}
-//				if (account.getAccountId() == unmarshalled.getTargetAccountId()) {
-//					foundtarget = true;
-//				}
-//			}
 			
-			PrintWriter pw = response.getWriter();
+			pw = response.getWriter();
 
 			if (user.getRole().getRoleId() == 0 || (loggedInUserHasSecurity)) {
 				
@@ -75,6 +64,9 @@ public class AccountsTransferServlet extends HttpServlet {
 					response.setStatus(400);
 				}
 			}
+		}
+		else {
+			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
 		}
 
 	}

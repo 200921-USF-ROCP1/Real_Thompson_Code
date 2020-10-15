@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.revature.DAOUtilities.DAOUtilities;
 import com.revature.Model.User;
 
 @WebServlet("/logout")
@@ -22,6 +23,7 @@ public class LogoutServlet extends HttpServlet {
 		// TODO Auto-generated constructor stub
 	}
 
+	// logout
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -29,14 +31,14 @@ public class LogoutServlet extends HttpServlet {
 		PrintWriter pw = response.getWriter();
 
 		try {
-			User user = (User) request.getSession().getAttribute("UserLoggedIn");
+			User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 			if (user != null) {
 				String name = user.getFirstName() + " " + user.getLastName();
-				request.getSession().setAttribute("UserLoggedIn", null);
+				request.getSession().setAttribute(DAOUtilities.LOGGED_IN_KEY, null);
 				pw.println(SUCCESS_LOGOUT + name + "\"}");
 				response.setStatus(200);
 			} else {
-				request.getSession().setAttribute("UserLoggedIn", null);
+				request.getSession().setAttribute(DAOUtilities.LOGGED_IN_KEY, null);
 				pw.println(NO_USER);
 				response.setStatus(400);
 			}

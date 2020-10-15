@@ -49,12 +49,11 @@ public class UserImpl implements UserDAO {
 			while (rs.next()) {
 				int userid = rs.getInt("user_id");
 				String gotusername = rs.getString("username");
-				String gotpword = rs.getString("user_password");
+				String gotpword = "";
 				String firstn = rs.getString("firstname");
 				String lastn = rs.getString("lastname");
 				String email = rs.getString("email");
 				int role = rs.getInt("user_role");
-				String account = rs.getString("user_account");
 
 				String roleplayed = rs.getString("roleplayed");
 				Role roler = new Role();
@@ -88,10 +87,39 @@ public class UserImpl implements UserDAO {
 
 	}
 
+	public boolean LinkUserToAccount(int userid, int accountid) {
+		boolean success = false;
+		try {
+			connection = DAOUtilities.getConnection(); // Get our database connection from the manager
+			String sql =
+
+					"insert into user_account_table\r\n" + "values (default, ?, ?)";
+
+			stmt = connection.prepareStatement(sql); // Creates the prepared statement from
+
+			// the query
+			// values (default, 'username', 'password', 'firstnamen', 'lname', 'emailcom',
+			// roleid 0, null);
+			stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			stmt.setInt(1, userid);
+			stmt.setInt(2, accountid);
+
+			if (stmt.executeUpdate() != 0) {
+
+				success = true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			DAOUtilities.closeResources(stmt);
+		}
+
+		return success;
+	}
+
 	public User Register(User newuser) {
 		// TODO Auto-generated method stub
 		boolean registered = false;
-		// User user = new User();
 		User result = null;
 		try {
 			connection = DAOUtilities.getConnection(); // Get our database connection from the manager
@@ -173,7 +201,6 @@ public class UserImpl implements UserDAO {
 		}
 
 		return list;
-
 	}
 
 	public User FindUserByID(int userid) {
@@ -204,8 +231,6 @@ public class UserImpl implements UserDAO {
 				roler.setRoleId(rs.getInt("user_role"));
 				roler.setDescription(rs.getInt("user_role"));
 				user.setRole(roler); // setLastName(rs.getString("lastname"));
-				// list.add(user);
-				// registered = true;
 			}
 
 		} catch (SQLException e) {
@@ -218,15 +243,12 @@ public class UserImpl implements UserDAO {
 
 		return user;
 
-		// return null;
 	}
 
 	public boolean UpdateUserDAO(User user) {
 		// TODO Auto-generated method stub
 
 		boolean updated = false;
-		// User user = null;
-		// UserDAO user = new UserImpl();
 		try {
 			connection = DAOUtilities.getConnection(); // Get our database connection from the manager
 

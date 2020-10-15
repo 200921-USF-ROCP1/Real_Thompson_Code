@@ -1,5 +1,6 @@
 package com.revature.Model;
 
+//  0 = checking 1 = savings
 public class AccountType {
 	private int typeId; // primary key 
 	private String type; // not null, unique

@@ -32,7 +32,7 @@ public class AccountsWithdrawServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		User user = (User) request.getSession().getAttribute("UserLoggedIn");
+		User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (user != null) {
 
 			PrintWriter pw = response.getWriter();
@@ -50,7 +50,7 @@ public class AccountsWithdrawServlet extends HttpServlet {
 					response.setStatus(200);
 					String strAmount = Double.toString(unmarshalled.getAmount());
 					String message = "{\"message\" : \"$" + strAmount + " has been withdrawn from Account #";
-					String strAccount = Integer.toString(unmarshalled.getAccountId()); // + "\"}";
+					String strAccount = Integer.toString(unmarshalled.getAccountId()); 
 					message += strAccount + "\"}";
 					pw.println(message);
 

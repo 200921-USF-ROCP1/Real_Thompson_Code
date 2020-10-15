@@ -15,38 +15,41 @@ import org.jboss.dmr.Parser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.DAOUtilities.DAOUtilities;
 import com.revature.Model.Account;
+import com.revature.Model.Linkage;
 import com.revature.Model.Role;
 import com.revature.Model.User;
 import com.revature.dao.UserDAO;
 import com.revature.dao.UserImpl;
 
-@WebServlet("/register")
-public class RegisterServlet extends HttpServlet {
+@WebServlet("/users/linking")
+public class LinkUserToAccount extends HttpServlet {
 
-	public RegisterServlet() {
-		// TODO Auto-generated constructor stub
-	}
-
-	// create a user
+	// link user to account
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		PrintWriter pw = response.getWriter();
-		User user = new User();
 		User userLoggedIn = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (userLoggedIn != null) {
-			if (userLoggedIn.getRole().getRoleId() == 0) {
+			int roleplayed = userLoggedIn.getRole().getRoleId();
+			if (roleplayed == 0 || roleplayed == 1) {
 				ObjectMapper mapper = new ObjectMapper(); // Create the mapper
-				User unmarshalled = mapper.readValue(request.getReader(), User.class); // Unmarshal
+				Linkage unmarshalled = mapper.readValue(request.getReader(), Linkage.class); // Unmarshal
+				
+				int intid = unmarshalled.userid; //usInteger.parseInt(userid);
+				int acctid = unmarshalled.accountid; // Integer.parseInt(accid);
 
 				UserDAO dao = new UserImpl(); // .getBookDAO();
-				User successfulRegister = dao.Register(unmarshalled);
+				boolean successfulRegister = dao.LinkUserToAccount(intid, acctid);
 
-				if (successfulRegister != null) {
-					String jsonString = mapper.writeValueAsString(successfulRegister); // To marshal to a String
+				
+				
+				if (successfulRegister) {
+					String message = "{\"message\": \"User " + ((Integer) intid).toString() + 
+							" linked to account " + ((Integer) acctid).toString() + "\"}";
 					response.setStatus(201);
-					pw.println(jsonString);
+					pw.println(message);
 				} else {
 					response.setStatus(400);
 					pw.println("{\"message\": \"Invalid fields\"}");
@@ -55,10 +58,11 @@ public class RegisterServlet extends HttpServlet {
 			} else {
 				pw.println("{\"message\": \"Invalid fields\"}");
 			}
-		}
+
+		} 
 		else
 		{
 			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
-		}
+		}			
 	}
 }

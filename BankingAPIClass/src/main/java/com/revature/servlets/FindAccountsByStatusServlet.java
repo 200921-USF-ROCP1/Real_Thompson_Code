@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.DAOUtilities.DAOUtilities;
 import com.revature.Model.Account;
 import com.revature.Model.AccountStatus;
 import com.revature.Model.AccountType;
@@ -32,7 +33,7 @@ public class FindAccountsByStatusServlet extends HttpServlet {
 
 		PrintWriter pw = response.getWriter();
 
-		User user = (User) request.getSession().getAttribute("UserLoggedIn");
+		User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (user != null) {
 			ObjectMapper mapper = new ObjectMapper();
 
@@ -53,7 +54,10 @@ public class FindAccountsByStatusServlet extends HttpServlet {
 			} else {
 				response.setStatus(400);
 			}
-
+		}
+		else
+		{
+			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
 		}
 	}
 

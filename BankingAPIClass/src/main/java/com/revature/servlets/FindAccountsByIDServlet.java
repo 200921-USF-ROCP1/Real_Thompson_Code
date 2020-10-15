@@ -2,6 +2,7 @@ package com.revature.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.DAOUtilities.DAOUtilities;
 import com.revature.Model.Account;
 import com.revature.Model.User;
 import com.revature.dao.AccountDAO;
@@ -30,17 +32,20 @@ public class FindAccountsByIDServlet extends HttpServlet {
 			throws ServletException, IOException {
 
 		PrintWriter pw = response.getWriter();
-		User user = (User) request.getSession().getAttribute("UserLoggedIn");
+		User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (user != null) {
+			
 			AccountDAO accountdao = new AccountImpl();
 			ObjectMapper mapper = new ObjectMapper();
-			String accountid = request.getParameter("id");
-			int intid = Integer.parseInt(accountid);
-			int sameuserasloggedin = accountdao.FindUserByAccountIdAndUserId(intid, user.getUserId());
-			if (user.getRole().getRoleId() == 0 || user.getRole().getRoleId() == 1 || user.getUserId() == sameuserasloggedin) {
+			String acctid = request.getParameter("id");
+			int intid = Integer.parseInt(acctid );
+			int loggedinAccountLink = user.getUserId();
+			
+			int gotRole = user.getRole().getRoleId();
+			if (gotRole == 0 || gotRole == 1 || intid == loggedinAccountLink) {
 				// admin or employee
 				
-				Account foundaccount = accountdao.FindAccountsByID(intid);
+				Account foundaccount = accountdao.FindAccountsByID(intid); 
 				if (foundaccount != null) {
 					
 					String sendtoclient  =  mapper.writeValueAsString(foundaccount);
@@ -51,6 +56,10 @@ public class FindAccountsByIDServlet extends HttpServlet {
 					pw.println("Account not found");
 				}
 			}
+		}
+		else
+		{
+			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
 		}
 	}
 }

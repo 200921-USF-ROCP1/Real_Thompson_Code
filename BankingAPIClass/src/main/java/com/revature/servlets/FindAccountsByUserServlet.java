@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.DAOUtilities.DAOUtilities;
 import com.revature.Model.Account;
 import com.revature.Model.AccountStatus;
 import com.revature.Model.AccountType;
@@ -23,13 +24,14 @@ import com.revature.dao.AccountImpl;
 import com.revature.dao.UserDAO;
 import com.revature.dao.UserImpl;
 
-@WebServlet("/accounts/owner/")
+@WebServlet("/accounts/owner/:userId")
 public class FindAccountsByUserServlet extends HttpServlet {
 
 	public FindAccountsByUserServlet() {
 		// TODO Auto-generated constructor stub
 	}
 
+	// get accounts linked to given user
 	@Override
 	// log in first, then run this
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -37,35 +39,19 @@ public class FindAccountsByUserServlet extends HttpServlet {
 
 		PrintWriter pw = response.getWriter();
 
-		User user = (User) request.getSession().getAttribute("UserLoggedIn");
+		User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (user != null) {
 			AccountDAO accountdao = new AccountImpl();
 			UserDAO userdao = new UserImpl();
 			String parm = request.getParameter("userId");
 			int intparm = Integer.parseInt(parm);
-
-			User usernotloggedin = userdao.FindUserByID(intparm);
+			int loggedInUser = user.getUserId();
+			int rolePlayed = user.getRole().getRoleId();
+		
 			
-			if (user.getRole().getRoleId() == 0 || user.getRole().getRoleId() == 1 ||
-					(usernotloggedin != null && usernotloggedin.getUserId() == user.getUserId())) {
-				// admin or employee
-				ObjectMapper mp = new ObjectMapper();
-				UserIdClass input = new UserIdClass();
-				ObjectMapper mapper = new ObjectMapper(); // Create the mapper
-				UserIdClass unmarshalled = null;
-				try {
-					unmarshalled = mapper.readValue(request.getReader(), UserIdClass.class); // Unmarshal
-																								// from a
-																								// Strin
-				} catch (Exception ex) {
-					ex.printStackTrace();
-
-				}
+			if (rolePlayed == 0 || rolePlayed == 1 || intparm == loggedInUser) {
 				
-				int userInt = unmarshalled.userId;
-
-				AccountStatus acctStat = new AccountStatus();
-				List<Account> foundaccounts = accountdao.FindAccountsByUser(userInt);
+				List<Account> foundaccounts = accountdao.FindAccountsByUser(intparm);
 
 				ObjectMapper mapper2 = new ObjectMapper(); // Create the mapper
 				String jsonString = mapper2.writeValueAsString(foundaccounts); // To marshal to a String
@@ -75,7 +61,10 @@ public class FindAccountsByUserServlet extends HttpServlet {
 			} else {
 				response.setStatus(400);
 			}
-
+		}
+		else
+		{
+			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
 		}
 	}
 

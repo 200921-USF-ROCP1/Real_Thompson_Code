@@ -157,7 +157,7 @@ public class AccountImpl implements AccountDAO {
 
 	}
 
-	public Account FindAccountsByID(int userID) {
+	public Account FindAccountsByID(int accountID) {
 		// TODO Auto-generated method stub
 //
 
@@ -173,7 +173,7 @@ public class AccountImpl implements AccountDAO {
 							+ "ac.account_type = atp.account_type_id\r\n" + "where ac.account_id = ?";
 
 			stmt = connection.prepareStatement(sql); // Creates the prepared statement from
-			stmt.setInt(1, userID);
+			stmt.setInt(1, accountID);
 			ResultSet rs = stmt.executeQuery(); // Queries the database new ResultSet();
 
 			while (rs.next()) {
@@ -232,36 +232,49 @@ public class AccountImpl implements AccountDAO {
 	public List<Account> FindAccountsByUser(int userId) {
 		// TODO Auto-generated method stub
 		boolean found = false;
-		ArrayList<Account> list = new ArrayList<Account>();
+		ArrayList<Account> list = null; //new ArrayList<Account>();
 		try {
 			connection = DAOUtilities.getConnection(); // Get our database connection from the manager
 
 			String sql =
 
-					"select *\r\n" + "from usertable ut\r\n" + "left join roletable rt on\r\n"
-							+ "ut.user_role = rt.roleid\r\n" + "inner join user_account_table uat on\r\n"
-							+ "ut.user_account = uat.account_id\r\n" + "inner join account acc on\r\n"
-							+ "uat.account_id = acc.account_id\r\n" + "left join accountstatus ast on\r\n"
-							+ "acc.account_status = ast.account_status_id\r\n" + "left join accounttype atp on\r\n"
-							+ "acc.account_type = atp.account_type_id\r\n" + "where ut.user_id = ?";
+					"select ut.user_id, ut.username, acc.account_id, acc.balance, acc.account_status,\r\n" +
+					  "acst.account_status, acc.account_type, acctyp.account_type\r\n" +  
+					"from usertable ut\r\n" +
+					"inner join user_account_table uat on\r\n" +
+					"ut.user_id = uat.user_id\r\n" +
+					"inner join account acc on\r\n" +
+					"uat.account_id = acc.account_id\r\n" +
+					"left join accountstatus acst on\r\n" +
+					"acc.account_status = acst.account_status_id\r\n" +
+					"left join accounttype acctyp on\r\n" +
+					"acc.account_type = acctyp.account_type_id\r\n" +
+					"where ut.user_id = ?";
+
 
 			stmt = connection.prepareStatement(sql); // Creates the prepared statement from
 			stmt.setInt(1, userId);
 			ResultSet rs = stmt.executeQuery(); // Queries the database new ResultSet();
 
 			while (rs.next()) {
+				
+				if (list == null)
+				{
+					list = new ArrayList<Account>();
+				}
 				Account account = new Account();
-				account.setAccountId(rs.getInt(1));
+				account.setAccountId(rs.getInt("account_id"));
 				account.setBalance(rs.getDouble("balance"));
 				AccountStatus accstat = new AccountStatus();
-				int tempstatus = rs.getInt("account_status_id");
-				String tempStringStatus = rs.getString(19);
+				int tempstatus = rs.getInt(5);
+				String tempStringStatus = rs.getString(6);
 				accstat.setStatusId(tempstatus);
 				accstat.setStatus(tempStringStatus);
 				account.setStatus(accstat);
-				AccountType acctype = new AccountType();
-				acctype.setTypeId(rs.getInt("account_type_id"));
-				acctype.setType(rs.getString(21));
+				AccountType acctype = new AccountType();;
+				int acctypeint = rs.getInt(7);
+				acctype.setTypeId(acctypeint);
+				acctype.setType(rs.getString(8));
 				account.setType(acctype);
 				list.add(account);
 			}
@@ -368,37 +381,38 @@ public class AccountImpl implements AccountDAO {
 
 	}
 
-	public int FindUserByAccountIdAndUserId(int account, int userid) {
-		
-		int gotuser = -1;
-		try {
-			connection = DAOUtilities.getConnection(); // Get our database connection from the manager
-			String sql =
-
-					"select ut.user_id\r\n" + "from account acc\r\n" + "inner join user_account_table uat on\r\n"
-							+ "acc.account_id = uat.account_id\r\n" + "inner join usertable ut on\r\n"
-							+ "uat.user_id = ut.user_id\r\n" + "where acc.account_id = ? and ut.user_id = ?";
-
-			stmt = connection.prepareStatement(sql);
-			
-			stmt.setInt(1, account);
-			stmt.setInt(2, userid);
-			ResultSet rs = stmt.executeQuery(); // Queries the database new ResultSet();
-			while (rs.next()) {
-			  gotuser = rs.getInt(1);
-			}
-			
-		} catch (Exception ex) {
-			ex.printStackTrace();
-
-		}
-		finally {
-			// We need to make sure our statements and connections are closed,
-			// or else we could wind up with a memory leak
-			DAOUtilities.closeResources(stmt);
-		}
-
-		// TODO Auto-generated method stub
-		return gotuser;
-	}
+	// not needed
+//	public int FindUserByAccountIdAndUserId(int account, int userid) {
+//		
+//		int gotuser = -1;
+//		try {
+//			connection = DAOUtilities.getConnection(); // Get our database connection from the manager
+//			String sql =
+//
+//					"select ut.user_id\r\n" + "from account acc\r\n" + "inner join user_account_table uat on\r\n"
+//							+ "acc.account_id = uat.account_id\r\n" + "inner join usertable ut on\r\n"
+//							+ "uat.user_id = ut.user_id\r\n" + "where acc.account_id = ? and ut.user_id = ?";
+//
+//			stmt = connection.prepareStatement(sql);
+//			
+//			stmt.setInt(1, account);
+//			stmt.setInt(2, userid);
+//			ResultSet rs = stmt.executeQuery(); // Queries the database new ResultSet();
+//			while (rs.next()) {
+//			  gotuser = rs.getInt(1);
+//			}
+//			
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//
+//		}
+//		finally {
+//			// We need to make sure our statements and connections are closed,
+//			// or else we could wind up with a memory leak
+//			DAOUtilities.closeResources(stmt);
+//		}
+//
+//		// TODO Auto-generated method stub
+//		return gotuser;
+//	}
 }

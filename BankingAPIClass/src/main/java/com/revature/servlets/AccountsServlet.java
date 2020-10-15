@@ -16,7 +16,7 @@ import com.revature.Model.Account;
 import com.revature.Model.AccountStatus;
 import com.revature.Model.AccountType;
 import com.revature.Model.User;
-import com.revature.Model.UserIdClass;
+//import com.revature.Model.UserIdClass;
 import com.revature.dao.AccountDAO;
 import com.revature.dao.AccountImpl;
 import com.revature.dao.UserDAO;
@@ -35,7 +35,7 @@ public class AccountsServlet extends HttpServlet {
 			throws ServletException, IOException {
 
 		PrintWriter pw = response.getWriter();
-		User user = (User) request.getSession().getAttribute("UserLoggedIn");
+		User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (user != null) {
 			ObjectMapper mapper = new ObjectMapper();
 
@@ -50,6 +50,8 @@ public class AccountsServlet extends HttpServlet {
 			} else {
 				response.setStatus(400);
 			}
+		} else {
+			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
 		}
 	}
 
@@ -60,7 +62,7 @@ public class AccountsServlet extends HttpServlet {
 		String jsonString = null; // mapper2.writeValueAsString(temp); // To marshal to a String
 //		
 		PrintWriter pw = response.getWriter();
-		User user = (User) request.getSession().getAttribute("UserLoggedIn");
+		User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (user != null) {
 			pw = response.getWriter();
 			ObjectMapper mapper = new ObjectMapper(); // Create the mapper
@@ -68,15 +70,11 @@ public class AccountsServlet extends HttpServlet {
 			try {
 				unmarshalled = mapper.readValue(request.getReader(), Account.class); // Unmarshal
 			} catch (Exception ex) {
-				
+				ex.getStackTrace();
+				throw new ServletException("{\"message\": \"Could not add account\"}");
 			}
-			
-			// if the account has not been created yet, how can it belong to the user who is logged in?
-		//	int accountidunmarshalled = unmarshalled.getAccountId();
-		//	int gottenuserid = user.getUserId();
 
-		//	boolean founduser = DAOUtilities.CompareUsersByAccountNumber(accountidunmarshalled, gottenuserid);
-			if (user.getRole().getRoleId() == 0 || user.getRole().getRoleId() == 1 /* || founduser*/) {
+			if (user.getRole().getRoleId() == 0 || user.getRole().getRoleId() == 1 /* || founduser */) {
 				// admin or employee
 
 				AccountDAO accountdao = new AccountImpl();
@@ -91,6 +89,9 @@ public class AccountsServlet extends HttpServlet {
 				response.setStatus(400);
 			}
 		}
+		else {
+			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
+		}
 	}
 
 	@Override
@@ -100,7 +101,7 @@ public class AccountsServlet extends HttpServlet {
 		String jsonString = null; // To marshal to a String
 //		
 		PrintWriter pw = response.getWriter();
-		User user = (User) request.getSession().getAttribute("UserLoggedIn");
+		User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (user != null) {
 			pw = response.getWriter();
 
@@ -127,6 +128,9 @@ public class AccountsServlet extends HttpServlet {
 			} else {
 				response.setStatus(400);
 			}
+		}
+		else {
+			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
 		}
 	}
 

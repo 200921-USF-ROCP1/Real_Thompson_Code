@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.DAOUtilities.DAOUtilities;
 import com.revature.Model.*;
 import com.revature.dao.UserDAO;
 import com.revature.dao.UserImpl;
@@ -26,11 +27,12 @@ public class UsersServlet extends HttpServlet {
 
 	@Override
 	// log in first, then run this
+	// find all users
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		PrintWriter pw = response.getWriter();
-		User user = (User) request.getSession().getAttribute("UserLoggedIn");
+		User user = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (user != null) {
 			if (user.getRole().getRoleId() == 0 || user.getRole().getRoleId() == 1) {
 				
@@ -48,16 +50,21 @@ public class UsersServlet extends HttpServlet {
 				pw.println("User not authorized to look up other users");
 			}
 		}
+		else
+		{
+			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
+		}
 	}
 
 	@Override
 	// log in first, then run this-Update User
+	// update user
 	protected void doPut(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		PrintWriter pw = response.getWriter();
 
-		User loginuser = (User) request.getSession().getAttribute("UserLoggedIn");
+		User loginuser = (User) request.getSession().getAttribute(DAOUtilities.LOGGED_IN_KEY);
 		if (loginuser != null) {
 
 			ObjectMapper toclass = new ObjectMapper();
@@ -81,6 +88,10 @@ public class UsersServlet extends HttpServlet {
 
 				pw.println("User not authorized to look up other users");
 			}
+		}
+		else
+		{
+			pw.println(DAOUtilities.USER_NOT_LOGGED_IN);
 		}
 	}
 

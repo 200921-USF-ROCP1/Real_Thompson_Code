@@ -34,11 +34,20 @@ public interface AccountDAO {
 	// status: the status: 0 = open, 1 = closed
 	public ArrayList<Account>  FindAccountsByStatus(AccountStatus status);
 	
-	// FindAccountsByUser:       
-	
+	// FindAccountsByUser: find the accound given a user id    
+	// userId: userid
 	public List<Account> FindAccountsByUser(int userId);
+	
+	// SubmitAccount: create account
+	// account: account submitted for adding to the table
 	public Account SubmitAccount(Account account); // create account
+	
+	// UpdateAccount
+	// update the account
+	// account: update the fields in this account
 	public Account UpdateAccount(Account account);
-	public int FindUserByAccountIdAndUserId(int account, int userid);
+	
+	// not needed
+	//public int FindUserByAccountIdAndUserId(int account, int userid);
 
 }

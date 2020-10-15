@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.DAOUtilities.DAOUtilities;
 import com.revature.Model.Account;
 import com.revature.Model.LoginClass;
 import com.revature.Model.User;
@@ -45,12 +46,12 @@ public class LoginServlet extends HttpServlet {
 			User theUser = dao.LoginDAO(unmarshalled.username, unmarshalled.password);
 
 			if (theUser.getUserId() != 0) {
-				request.getSession().setAttribute("UserLoggedIn", theUser);
+				request.getSession().setAttribute(DAOUtilities.LOGGED_IN_KEY, theUser);
 				String jsonString = mapper.writeValueAsString(theUser); // To marshal to a String
 				pw.println(jsonString);
 				response.setStatus(200);
 			} else {
-				request.getSession().setAttribute("UserLoggedIn", null);
+				request.getSession().setAttribute(DAOUtilities.LOGGED_IN_KEY, null);
 				pw.println(INVALID_CREDS); 
 						
 				response.setStatus(400);
